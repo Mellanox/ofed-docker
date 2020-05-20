@@ -7,11 +7,16 @@ ARG D_OS="ubuntu20.04"
 ARG D_ARCH="x86_64"
 ARG D_OFED_PATH="MLNX_OFED_LINUX-${D_OFED_VERSION}-${D_OS}-${D_ARCH}"
 
+ARG D_OFED_TARBALL_NAME="MLNX_OFED_LINUX-${D_OFED_VERSION}-${D_OS}-${D_ARCH}.tgz"
+ARG D_OFED_URL_PATH="https://www.mellanox.com/downloads/ofed/MLNX_OFED-${D_OFED_VERSION}/${D_OFED_TARBALL_NAME}"
+
 # Internal arguments
 ARG D_WITHOUT_FLAGS="--without-rshim-dkms --without-iser-dkms --without-isert-dkms --without-srp-dkms --without-kernel-mft-dkms --without-mlnx-rdma-rxe-dkms"
 
-# Copy and extract tarball
-ADD ./${D_OFED_PATH} /root/${D_OFED_PATH}
+# Download and extract tarball
+WORKDIR /root
+ADD ${D_OFED_URL_PATH} ./
+RUN tar -xf ${D_OFED_TARBALL_NAME}
 RUN apt-get -yq update; apt-get -yq install perl
 
 # Install OFED

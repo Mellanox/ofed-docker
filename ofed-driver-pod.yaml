@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ofed-driver
+  labels:
+    app: ofed-driver
+spec:
+  hostNetwork: true
+  containers:
+    - name: ofed-driver
+      image: ofed_container
+      imagePullPolicy: Never
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: run-mofed
+          mountPath: /run/mellanox/drivers
+          mountPropagation: Bidirectional
+  volumes:
+    - name: run-mofed
+      hostPath:
+        path: /run/mellanox/drivers
