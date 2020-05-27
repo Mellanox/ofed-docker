@@ -1,4 +1,4 @@
 dist: focal
 
 script:
-  - docker build -t ofed-driver ubuntu/
+  - travis_wait 30 docker build -t ofed-driver ubuntu/
