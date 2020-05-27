@@ -1,3 +1,6 @@
+# TODO:
+#  1. Test and Fix issues in Dockerfile
+
 ## Stage: Build driver
 FROM centos:centos8 AS build
 
@@ -35,6 +38,6 @@ RUN cp /root/MLNX_OFED_LINUX-${D_OFED_VERSION}-${D_OS}-${D_ARCH}/docs/scripts/op
 FROM build
 
 WORKDIR /
-ADD ../entrypoint.sh /root/entrypoint.sh
+ADD ./entrypoint.sh /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]
