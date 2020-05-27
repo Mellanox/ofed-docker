@@ -1,0 +1,4 @@
+dist: focal
+
+script:
+  - docker build -t ofed-driver ubuntu/
