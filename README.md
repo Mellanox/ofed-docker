@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Build Status](https://travis-ci.com/adrianchiris/ofed-docker.svg?branch=master)](https://travis-ci.com/adrianchiris/ofed-docker)
+[![Build Status](https://travis-ci.com/mellanox/ofed-docker.svg?branch=master)](https://travis-ci.com/mellanox/ofed-docker)
 # Containerized Mellanox OFED driver
 
 This repository offers Dockerfiles for variours distribution to be used for building a Mellanox OFED driver container.
