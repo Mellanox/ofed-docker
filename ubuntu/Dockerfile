@@ -1,5 +1,6 @@
 ## Stage: Build driver
-FROM ubuntu:20.04 AS build
+ARG D_BASE_IMAGE=ubuntu:20.04
+FROM $D_BASE_IMAGE AS build
 
 # Build Args - pass with --build-arg flag during build
 ARG D_OFED_VERSION="5.0-2.1.8.0"
