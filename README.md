@@ -24,12 +24,14 @@ a container image for various driver version and platforms.
 - `D_OFED_VERSION` : Mellanox OFED version as appears in [Mellanox OFED download page](https://www.mellanox.com/products/infiniband-drivers/linux/mlnx_ofed),
 e.g `5.0-2.1.8.0`
 - `D_OS` : Operating System version as appears in Mellanox OFED downlload page, e.g `ubuntu20.04`
-- `D_ARCH`: CPU architecture as appears in Mellanox OFED download page, e.g `x86_64` 
+- `D_ARCH`: CPU architecture as appears in Mellanox OFED download page, e.g `x86_64`
+- `D_BASE_IMAGE` : Base image to be used for driver container image build. Default: `ubuntu:20.04` 
 
 ### Containerized Mellanox OFED - Ubuntu
 
 ```
 # docker build -t ofed-driver\
+--build-arg D_BASE_IMAGE=ubuntu:20.04 \
 --build-arg D_OFED_VERSION=5.0-2.1.8.0 \
 --build-arg D_OS=ubuntu20.04 \
 --build-arg D_ARCH=x86_64 \
