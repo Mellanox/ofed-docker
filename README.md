@@ -44,4 +44,25 @@ Coming soon...
 
 ## Containerized GPU Direct - Image build
 
-WIP Coming soon...
+### Containerized GPU Direct - Ubuntu
+
+#### Build arguments
+
+- `D_BASE_IMAGE` Base image to be used when building the container image (Default: `ubuntu:20.04`)
+- `D_NV_PEER_MEM_BRANCH` Branch/Tag of nv_peer_memory [repositroy](https://github.com/Mellanox/nv_peer_memory) (Default: `master`)
+
+#### Build
+```
+# docker build -t nv-peer-mem \
+--build-arg D_BASE_IMAGE=ubuntu:20.04 \
+--build-arg D_NV_PEER_MEM_BRANCH=1.0-9 \
+gpu-direct/ubuntu/
+```
+
+#### Run
+```
+# docker run --rm -it \
+-v /run/mellanox/drivers:/run/mellanox/drivers \
+-v /run/nvidia/driver:/run/nvidia/drivers \
+--privileged nv-peer-mem
+```
