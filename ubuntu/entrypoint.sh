@@ -30,14 +30,16 @@ function rebuild_driver() {
     apt-get -yq install linux-headers-$(uname -r)
     dkms autoinstall
 }
+
 function start_driver() {
-    /etc/init.d/openibd stop
-    /etc/init.d/openibd start
+    /etc/init.d/openibd restart
     if [[ $? -ne 0 ]]; then
-        echo "Error occured while starting driver"
+        echo "Error occured while restarting driver"
         rebuild_driver
-        /etc/init.d/openibd start
-        return $?
+        /etc/init.d/openibd restart
+        if [[ $? -ne 0 ]]; then
+            return 1
+        fi
     fi
     ofed_info -s
 }
