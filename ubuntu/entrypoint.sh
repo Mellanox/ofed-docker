@@ -27,6 +27,7 @@ function handle_signal() {
     unmount_rootfs
     echo "Stopping Mellanox OFED Driver..."
     /etc/init.d/openibd force-stop
+    exit 0
 }
 
 function ofed_exist_for_kernel() {
@@ -68,4 +69,4 @@ exit_on_error start_driver
 mount_rootfs
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
 trap "handle_signal" EXIT
-sleep infinity
+sleep infinity & wait
