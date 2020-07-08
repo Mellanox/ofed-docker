@@ -105,4 +105,4 @@ exit_on_error prepare_build_env
 exit_on_error build_modules
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
 trap "handle_signal" EXIT
-sleep infinity
+sleep infinity & wait
