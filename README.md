@@ -66,7 +66,7 @@ Coming soon...
 ### Containerized Mellanox OFED - Run
 ```
 # docker run --rm -it \
--v /run/mellanox/drivers:/run/mellanox/drivers \
+-v /run/mellanox/drivers:/run/mellanox/drivers:shared \
 -v /etc/network:/etc/network \
 --net=host --privileged ofed-driver
 ```
