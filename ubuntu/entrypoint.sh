@@ -17,10 +17,29 @@ function mount_rootfs() {
 }
 
 function unmount_rootfs() {
-    echo "Unmounting Mellanox OFED driver rootfs..."
     if findmnt -r -o TARGET | grep "/run/mellanox/drivers" > /dev/null; then
       umount -l -R /run/mellanox/drivers
     fi
+}
+
+function handle_signal() {
+    echo "Unmounting Mellanox OFED driver rootfs..."
+    unmount_rootfs
+    echo "Stopping Mellanox OFED Driver..."
+    /etc/init.d/openibd force-stop
+}
+
+function ofed_exist_for_kernel() {
+    # check if mlx5_core exists in dkms under running kernel, this should be sufficient to hint us if
+    # OFED drivers are installed for the running kernel
+    local KVER=$(uname -r)
+    if [[ -e /lib/modules/${KVER}/updates/dkms/mlx5_core.ko ]]; then
+        echo "OFED driver found for kernel"
+        return 0
+    fi
+    echo "No OFED driver found for kernel ${KVER}"
+    return 1
+
 }
 
 function rebuild_driver() {
@@ -35,17 +54,18 @@ function start_driver() {
     /etc/init.d/openibd restart
     if [[ $? -ne 0 ]]; then
         echo "Error occured while restarting driver"
-        rebuild_driver
-        /etc/init.d/openibd restart
-        if [[ $? -ne 0 ]]; then
-            return 1
-        fi
+        return 1
     fi
     ofed_info -s
 }
 
+ofed_exist_for_kernel
+if [[ $? -ne 0 ]]; then
+    rebuild_driver
+fi
+
 exit_on_error start_driver
 mount_rootfs
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
-trap "unmount_rootfs" EXIT
+trap "handle_signal" EXIT
 sleep infinity
