@@ -1,5 +1,13 @@
 #!/bin/bash -x
 
+function set_driver_readiness() {
+    touch /.driver-ready
+}
+
+function unset_driver_readiness() {
+    rm -f /.driver-ready
+}
+
 function exit_on_error() {
     $@
     if [[ $? -ne 0 ]]; then
@@ -23,6 +31,7 @@ function unmount_rootfs() {
 }
 
 function handle_signal() {
+    unset_driver_readiness
     echo "Unmounting Mellanox OFED driver rootfs..."
     unmount_rootfs
     echo "Stopping Mellanox OFED Driver..."
@@ -60,6 +69,9 @@ function start_driver() {
     ofed_info -s
 }
 
+# Unset driver readiness in case it was set in a previous run of this container
+# and container was killed
+unset_driver_readiness
 ofed_exist_for_kernel
 if [[ $? -ne 0 ]]; then
     rebuild_driver
@@ -67,6 +79,7 @@ fi
 
 exit_on_error start_driver
 mount_rootfs
+set_driver_readiness
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
 trap "handle_signal" EXIT
 sleep infinity & wait
