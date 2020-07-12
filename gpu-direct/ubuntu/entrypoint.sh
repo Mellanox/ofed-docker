@@ -3,6 +3,14 @@ MOFED=/run/mellanox/drivers
 NVIDIA=/run/nvidia/drivers
 KERNEL_VERSION=$(uname -r)
 
+function set_driver_readiness() {
+    touch /.driver-ready
+}
+
+function unset_driver_readiness() {
+    rm -f /.driver-ready
+}
+
 function exit_on_error() {
     $@
     if [[ $? -ne 0 ]]; then
@@ -97,12 +105,17 @@ function build_modules() {
 
 function handle_signal() {
     echo 'Stopping nv_peer_memory driver'
+    unset_driver_readiness
     /root/nv_peer_memory/nv_peer_mem stop
 }
 
+# Unset driver readiness in case it was set in a previous run of this container
+# and container was killed
+unset_driver_readiness
 exit_on_error install_prereq_runtime
 exit_on_error prepare_build_env
 exit_on_error build_modules
+set_driver_readiness
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
 trap "handle_signal" EXIT
 sleep infinity & wait
