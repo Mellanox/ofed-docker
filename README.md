@@ -15,6 +15,7 @@
       - [Build - Ubuntu](#build---ubuntu-1)
       - [Build - Centos](#build---centos-1)
       - [Containerized Nvidia Peer Memory Client driver - Run](#containerized-nvidia-peer-memory-client-driver---run)
+  * [Driver container readiness](#driver-container-readiness)
 
 # Containerized Nvidia Mellanox drivers
 This repository provides means to build driver containers for various distributions.
@@ -112,3 +113,18 @@ and [Nvidia driver container](https://github.com/NVIDIA/nvidia-docker/wiki/Drive
 -v /run/nvidia/driver:/run/nvidia/drivers \
 --privileged nv-peer-mem
 ```
+
+## Driver container readiness
+
+A driver container load kernel modules into the running kernel preceded by a possible compilation
+step.
+
+The process is not atomic as:
+
+1. A driver is often composed of multiple modules which are loaded sequentially into the kernel.
+2. Compilation (if it takes place) takes time.
+
+To mark the completion of the driver loading phase by the driver container, 
+a file is created at the container's root directory: `/.driver-ready`.
+Its existence indicates that the driver has been successfully loaded into the running kernel.
+This can be used by a container orchestrator to probe for readiness of a driver container. 
