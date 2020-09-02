@@ -16,7 +16,12 @@ spec:
         - name: run-mofed
           mountPath: /run/mellanox/drivers
           mountPropagation: Bidirectional
+        - name: etc-network
+          mountPath: /etc/network
   volumes:
     - name: run-mofed
       hostPath:
         path: /run/mellanox/drivers
+    - name: etc-network
+      hostPath:
+        path: /etc/network
