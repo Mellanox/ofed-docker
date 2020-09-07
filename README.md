@@ -128,3 +128,8 @@ To mark the completion of the driver loading phase by the driver container,
 a file is created at the container's root directory: `/.driver-ready`.
 Its existence indicates that the driver has been successfully loaded into the running kernel.
 This can be used by a container orchestrator to probe for readiness of a driver container. 
+
+## Limitations
+Having `rdma-core` package installed on the host may prevent Mellanox OFED driver container
+to properly load drivers. This is due to the fact that `rdma-core` places udev rules that trigger
+driver module load from the host as well as load storage modules on system startup.
