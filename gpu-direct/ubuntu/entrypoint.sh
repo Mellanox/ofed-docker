@@ -68,10 +68,10 @@ function inject_nvidia_driver() {
     if [[ $? -eq 0 ]]; then
         ln -sf ${NVIDIA}/lib/modules/${KERNEL_VERSION}/updates/dkms/* /lib/modules/${KERNEL_VERSION}/updates/dkms/
     else
-        has_files_matching ${NVIDIA}/lib/modules/4.15.0-109-generic/kernel/drivers/video/ nvidia
+        has_files_matching ${NVIDIA}/lib/modules/${KERNEL_VERSION}/kernel/drivers/video/ nvidia
         if [[ $? -eq 0 ]]; then
             # Driver installed as non dkms kernel module
-            ln -sf ${NVIDIA}/lib/modules/4.15.0-109-generic/kernel/drivers/video/nvidia* /lib/modules/4.15.0-109-generic/updates/dkms/
+            ln -sf ${NVIDIA}/lib/modules/${KERNEL_VERSION}/kernel/drivers/video/nvidia* /lib/modules/${KERNEL_VERSION}/updates/dkms/
         else
             echo "ERROR: Failed to locate Nvidia GPU drivers in mount: ${NVIDIA}"
             return 1
