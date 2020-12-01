@@ -29,6 +29,7 @@ function has_files_matching() {
 
 function install_prereq_runtime() {
     # Install linux headers
+    apt-get -yq update
     apt-get -yq install linux-headers-${KERNEL_VERSION}
     return $?
 }
