@@ -54,9 +54,10 @@ function ofed_exist_for_kernel() {
 
 function rebuild_driver() {
     # Rebuild driver in case installed driver kernel version differs from running kernel
+    local KVER=$(uname -r)
     echo "Rebuilding driver"
     apt-get -yq update
-    apt-get -yq install linux-headers-$(uname -r)
+    apt-get -yq install linux-headers-${KVER} linux-modules-${KVER}
     dkms autoinstall
 }
 
@@ -69,6 +70,16 @@ function start_driver() {
     ofed_info -s
 }
 
+function unload_modules() {
+    local module
+    for module in $@; do
+        grep -q "^${module} " /proc/modules || continue
+        unload_modules $(awk '$1=="'${module}'"{print $4}' /proc/modules | tr , ' ')
+        echo "Unloading module ${module}..."
+        rmmod ${module}
+    done
+}
+
 # Unset driver readiness in case it was set in a previous run of this container
 # and container was killed
 unset_driver_readiness
@@ -77,6 +88,7 @@ if [[ $? -ne 0 ]]; then
     rebuild_driver
 fi
 
+unload_modules rpcrdma rdma_cm
 exit_on_error start_driver
 mount_rootfs
 set_driver_readiness
