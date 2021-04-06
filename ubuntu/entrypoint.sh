@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+
+VENDOR=0x15b3
+DRIVER_PATH=/sys/bus/pci/drivers/mlx5_core
+
 function set_driver_readiness() {
     touch /.driver-ready
 }
@@ -80,6 +84,77 @@ function unload_modules() {
     done
 }
 
+function find_mlx_devs() {
+    local ethpath
+    for ethpath in /sys/class/net/*; do
+        if (grep $VENDOR "$ethpath"/device/vendor >/dev/null 2>&1); then
+            echo "$ethpath"
+        fi
+    done
+}
+
+# find all available vfs
+# return format <pf_name> <vf_name> <vf_index> <vf_mac> <vf_pci_addr>
+function find_mlx_vfs() {
+    for mlnx_dev in $(find_mlx_devs); do
+        for vf in "$mlnx_dev"/device/virtfn[0-9]*/net/*; do
+            [[ -d $vf ]] || continue
+            pf_name=$(basename "$mlnx_dev") && [[ -n $pf_name ]] || return 1
+            vf_name=$(basename "$vf") && [[ -n $vf_name ]] || return 1
+            vf_index=$(sed -E 's|.*/virtfn([0-9]+)/.*|\1|' <<<"$vf") && [[ -n $vf_index ]] || return 1
+            vf_mac=$(cat "$vf"/address) && [[ -n $vf_mac ]] || return 1
+            vf_pci_addr=$(basename $(readlink "$vf"/device)) && [[ -n $vf_pci_addr ]] || return 1
+
+            echo "$pf_name" "$vf_name" "$vf_index" "$vf_mac" "$vf_pci_addr"
+        done
+    done
+}
+
+function set_administrative_mac_for_vf() {
+    local pf_name=$1
+    local vf_index=$2
+    local vf_mac=$3
+    ip link set dev "$pf_name" vf "$vf_index" mac "$vf_mac"
+}
+
+function driver_rebind_vf() {
+    local vf_pci_addr="$1"
+    if ! echo "$vf_pci_addr" >$DRIVER_PATH/unbind; then
+        echo "failed to unbind dev $vf_pci_addr"
+        return 1
+    fi
+    if ! echo "$vf_pci_addr" >$DRIVER_PATH/bind; then
+        echo "failed to bind dev $vf_pci_addr"
+        return 1
+    fi
+}
+
+function fix_guid_for_vfs() {
+    local vf_data
+    if ! vf_data="$(find_mlx_vfs)"; then
+        echo "Failed to read info about VFs"
+        return 1
+    fi
+    while read -r d; do
+        [[ -n "$d" ]] || continue
+        local vf_info=($d)
+        local pf_name=${vf_info[0]}
+        local vf_name=${vf_info[1]}
+        local vf_index=${vf_info[2]}
+        local vf_mac=${vf_info[3]}
+        local vf_pci_addr=${vf_info[4]}
+        echo "fix guid for VF: $vf_name"
+        if ! set_administrative_mac_for_vf "$pf_name" "$vf_index" "$vf_mac"; then
+            echo "failed to set mac for $pf_name VF $vf_index"
+            return 1
+        fi
+        if ! driver_rebind_vf "$vf_pci_addr"; then
+            echo "failed to rebind $pf_name VF $vf_index, $vf_pci_addr"
+            return 1
+        fi
+    done <<<"$vf_data"
+}
+
 # Unset driver readiness in case it was set in a previous run of this container
 # and container was killed
 unset_driver_readiness
@@ -91,6 +166,12 @@ fi
 unload_modules rpcrdma rdma_cm
 exit_on_error start_driver
 mount_rootfs
+
+# Set administrative mac address for VFs. After mac set, VF
+# will be unbinded from the driver and then binded again
+# These actions are required to force GUID generation for RDMA device
+fix_guid_for_vfs
+
 set_driver_readiness
 trap "echo 'Caught signal'; exit 1" HUP INT QUIT PIPE TERM
 trap "handle_signal" EXIT
