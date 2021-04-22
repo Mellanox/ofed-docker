@@ -21,7 +21,7 @@ function exit_on_error() {
 }
 
 function mount_rootfs() {
-    echo "Mounting OFED driver container rootfs..."
+    echo "Mounting Mellanox OFED driver container rootfs..."
     mount --make-runbindable /sys
     mount --make-private /sys
     mkdir -p /run/mellanox/drivers
@@ -29,6 +29,7 @@ function mount_rootfs() {
 }
 
 function unmount_rootfs() {
+    echo "Unmounting Mellanox OFED driver rootfs..."
     if findmnt -r -o TARGET | grep "/run/mellanox/drivers" > /dev/null; then
       umount -l -R /run/mellanox/drivers
     fi
@@ -36,7 +37,6 @@ function unmount_rootfs() {
 
 function handle_signal() {
     unset_driver_readiness
-    echo "Unmounting Mellanox OFED driver rootfs..."
     unmount_rootfs
     echo "Stopping Mellanox OFED Driver..."
     /etc/init.d/openibd force-stop
