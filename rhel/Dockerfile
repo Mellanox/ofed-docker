@@ -8,16 +8,16 @@ ARG D_ARCH="x86_64"
 ARG D_OFED_PATH="MLNX_OFED_LINUX-${D_OFED_VERSION}-${D_OS}-${D_ARCH}"
 ENV D_OFED_PATH=${D_OFED_PATH}
 
-ARG D_OFED_TARBALL_NAME="MLNX_OFED_LINUX-${D_OFED_VERSION}-${D_OS}-${D_ARCH}.tgz"
-ARG D_OFED_URL_PATH="https://www.mellanox.com/downloads/ofed/MLNX_OFED-${D_OFED_VERSION}/${D_OFED_TARBALL_NAME}"
+ARG D_OFED_TARBALL_NAME="${D_OFED_PATH}.tgz"
+ARG D_OFED_BASE_URL="https://www.mellanox.com/downloads/ofed/MLNX_OFED-${D_OFED_VERSION}"
+ARG D_OFED_URL_PATH="${D_OFED_BASE_URL}/${D_OFED_TARBALL_NAME}"
 
 ARG D_WITHOUT_FLAGS="--without-rshim-dkms --without-iser-dkms --without-isert-dkms --without-srp-dkms --without-kernel-mft-dkms --without-mlnx-rdma-rxe-dkms"
 ENV D_WITHOUT_FLAGS=${D_WITHOUT_FLAGS}
 
 # Download and extract tarball
 WORKDIR /root
-ADD ${D_OFED_URL_PATH} ./
-RUN tar -xf ${D_OFED_TARBALL_NAME}
+RUN dnf -y install curl && (curl -sL ${D_OFED_URL_PATH} | tar -xzf -)
 RUN dnf -y install autoconf automake binutils ethtool gcc git hostname kmod libmnl libtool lsof make pciutils perl procps python36 python36-devel rpm-build tcl tk wget
 
 WORKDIR /
