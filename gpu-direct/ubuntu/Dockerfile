@@ -13,9 +13,9 @@ libelf-dev libudev-dev libpci-dev libiberty-dev autoconf debhelper
 RUN /bin/bash -c 'git clone --branch ${D_NV_PEER_MEM_BRANCH} https://github.com/Mellanox/nv_peer_memory.git'
 
 # Apply fix for nvidia symver. see issue: https://github.com/Mellanox/nv_peer_memory/issues/70 for more information
-# TODO: Remove this fix once its addressed in nv_peer_memory project.
-ADD ./patches/nv-symver.fix ./nv_peer_memory
-RUN /bin/bash -c 'cd nv_peer_memory && git apply nv-symver.fix'
+ADD ./patches/nv-symver.fix .
+RUN cd nv_peer_memory && \
+    if [ "$(git rev-list 1.0-9..HEAD | wc -l)" -eq 0 ]; then git apply ../nv-symver.fix; fi
 
 ADD ./entrypoint.sh ./
 
