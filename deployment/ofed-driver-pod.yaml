@@ -18,6 +18,10 @@ spec:
           mountPropagation: Bidirectional
         - name: etc-network
           mountPath: /etc/network
+        - name: host-etc
+          mountPath: /host/etc
+        - name: host-udev
+          mountPath: /host/lib/udev
   volumes:
     - name: run-mofed
       hostPath:
@@ -25,3 +29,9 @@ spec:
     - name: etc-network
       hostPath:
         path: /etc/network
+    - name: host-etc
+      hostPath:
+        path: /etc
+    - name: host-udev
+      hostPath:
+        path: /lib/udev
