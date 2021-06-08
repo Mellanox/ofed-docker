@@ -26,7 +26,7 @@ RUN set -x && \
     sed -i '/ESP_OFFLOAD_LOAD=yes/c\ESP_OFFLOAD_LOAD=no' /etc/infiniband/openib.conf && \
     cp /root/${D_OFED_PATH}/docs/scripts/openibd-post-start-configure-interfaces/post-start-hook.sh /etc/infiniband/post-start-hook.sh && \
     chmod +x /etc/infiniband/post-start-hook.sh && \
-    apt-get -yq install iproute2 net-tools linux-modules-$(uname -r) && \
+    apt-get -yq install iproute2 net-tools ifupdown linux-modules-$(uname -r) && \
     rm -rf /root/${D_OFED_PATH} && \
     apt-get clean autoclean && \
     rm -rf /var/lib/apt/lists/*
