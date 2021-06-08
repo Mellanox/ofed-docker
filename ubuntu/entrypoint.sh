@@ -38,6 +38,7 @@ function unmount_rootfs() {
 function handle_signal() {
     unset_driver_readiness
     unmount_rootfs
+    delete_udev_rules
     echo "Stopping Mellanox OFED Driver..."
     /etc/init.d/openibd force-stop
     exit 0
@@ -155,6 +156,22 @@ function fix_guid_for_vfs() {
     done <<<"$vf_data"
 }
 
+function create_udev_rules() {
+        cp /lib/udev/rules.d/82-net-setup-link.rules /host/lib/udev/rules.d/
+
+        # Copy 82-net-setup-link.rules dependencies
+        cp /lib/udev/mlnx_bf_udev  /host/lib/udev/
+        mkdir /host/etc/infiniband
+        cp /etc/infiniband/vf-net-link-name.sh /host/etc/infiniband/
+}
+
+function delete_udev_rules() {
+        rm /host/lib/udev/rules.d/82-net-setup-link.rules
+
+        rm /host/lib/udev/mlnx_bf_udev
+        rm /host/etc/infiniband/vf-net-link-name.sh
+}
+
 # Unset driver readiness in case it was set in a previous run of this container
 # and container was killed
 unset_driver_readiness
@@ -164,6 +181,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 unload_modules rpcrdma rdma_cm
+create_udev_rules
 exit_on_error start_driver
 mount_rootfs
 
