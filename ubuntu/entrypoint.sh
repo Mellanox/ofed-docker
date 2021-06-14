@@ -161,7 +161,10 @@ function create_udev_rules() {
 
         # Copy 82-net-setup-link.rules dependencies
         cp /lib/udev/mlnx_bf_udev  /host/lib/udev/
-        mkdir /host/etc/infiniband
+        # Ingnore errors during directory creation
+        # We don't delete this directory in delete_udev_rules because it could
+        # have some files creted by other software or system administrator
+        mkdir -p /host/etc/infiniband
         cp /etc/infiniband/vf-net-link-name.sh /host/etc/infiniband/
 }
 
