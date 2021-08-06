@@ -66,6 +66,23 @@ function rebuild_driver() {
     dkms autoinstall
 }
 
+function sync_network_configuration_tools() {
+    # As part of openibd restart, mlnx_interface_mgr.sh is running and trying to read
+    # /etc/network/interfaces file in case ifup exists and netplan doesn't.
+    # In case the host doesn't include ifup but the container do we will fail on reading this file
+    # and restarting openibd.
+    # The container need to work on both cases where the host includes ifup and when it doesn't.
+    # In order to support it we will install both ifup and netplan in the container and on run time
+    # we will try to read /etc/network/interfaces (which is mounted from host) and if not exist
+    # assume that ifup is missing in the host, in such case we will rename the ifup file in the
+    # container so that mlnx_interface_mgr.sh will not find it and won't be trying to read missing
+    # /etc/network/interfaces file.
+    if [[ -e /etc/network/interfaces ]]; then
+        echo "/etc/network/interfaces wasn't found, renaming ifup file (/sbin/ifup -> /sbin/ifup.bk)."
+        mv /sbin/ifup /sbin/ifup.bk
+        return 0
+    fi
+}
 function start_driver() {
     /etc/init.d/openibd restart
     if [[ $? -ne 0 ]]; then
@@ -185,6 +202,7 @@ fi
 
 unload_modules rpcrdma rdma_cm
 create_udev_rules
+sync_network_configuration_tools
 exit_on_error start_driver
 mount_rootfs
 
