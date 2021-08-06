@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8:latest
 
-ARG D_OFED_VERSION="5.2-1.0.4.0"
+ARG D_OFED_VERSION="5.3-1.0.0.1"
 ARG D_OS_VERSION="8.2"
 ARG D_OS="rhel${D_OS_VERSION}"
 ENV D_OS=${D_OS}
