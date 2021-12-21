@@ -66,6 +66,15 @@ function rebuild_driver() {
     dkms autoinstall
 }
 
+function fix_src_link() {
+    local ARCH=$(uname -m)
+    local KVER=$(uname -r)
+    local target=$(readlink /usr/src/ofa_kernel/default)
+    if [[ -e /usr/src/ofa_kernel/${ARCH}/${KVER} ]] && [[ -L /usr/src/ofa_kernel/default ]] && [[ "${target:0:1}" = / ]]; then
+        ln -snf "${ARCH}/${KVER}" /usr/src/ofa_kernel/default
+    fi
+}
+
 function sync_network_configuration_tools() {
     # As part of openibd restart, mlnx_interface_mgr.sh is running and trying to read
     # /etc/network/interfaces file in case ifup exists and netplan doesn't.
@@ -199,6 +208,7 @@ ofed_exist_for_kernel
 if [[ $? -ne 0 ]]; then
     rebuild_driver
 fi
+fix_src_link
 
 unload_modules rpcrdma rdma_cm
 create_udev_rules

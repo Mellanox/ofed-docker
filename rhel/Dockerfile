@@ -1,4 +1,5 @@
-FROM registry.access.redhat.com/ubi8:latest
+ARG D_BASE_IMAGE=registry.access.redhat.com/ubi8:latest
+FROM $D_BASE_IMAGE
 
 ARG D_OFED_VERSION="5.3-1.0.0.1"
 ARG D_OS_VERSION="8.2"
