@@ -69,8 +69,8 @@ Coming soon...
 # docker run --rm -it \
 -v /run/mellanox/drivers:/run/mellanox/drivers:shared \
 -v /etc/network:/etc/network \
--v /host/etc:/etc \
--v /host/lib/udev:/lib/udev \
+-v /etc:/host/etc \
+-v /lib/udev:/host/lib/udev \
 --net=host --privileged ofed-driver
 ```
 
