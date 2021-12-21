@@ -63,6 +63,15 @@ rebuild_driver() {
     #dkms autoinstall
 }
 
+function fix_src_link() {
+    local ARCH=$(uname -m)
+    local KVER=$(uname -r)
+    local target=$(readlink /usr/src/ofa_kernel/default)
+    if [[ -e /usr/src/ofa_kernel/${ARCH}/${KVER} ]] && [[ -L /usr/src/ofa_kernel/default ]] && [[ "${target:0:1}" = / ]]; then
+        ln -snf "${ARCH}/${KVER}" /usr/src/ofa_kernel/default
+    fi
+}
+
 start_driver() {
     modprobe -r rpcrdma ib_srpt ib_isert rdma_cm
     modprobe -r i40iw ib_core
@@ -242,6 +251,7 @@ if [[ $? -ne 0 ]]; then
     _install_ofed
     rebuild_driver
 fi
+fix_src_link
 
 unload_modules rpcrdma rdma_cm
 create_udev_rules
