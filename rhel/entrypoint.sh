@@ -86,10 +86,19 @@ start_driver() {
 # Install the kernel modules header/builtin/order files and generate the kernel version string.
 _install_prerequisites() {
     echo "Enabling RHOCP and EUS RPM repos..."
+    eval local $(cat /host/etc/os-release | grep ^ID=)
     eval local $(cat /host/etc/os-release | grep ^VERSION_ID=)
+    eval $(cat /host/etc/os-release | grep ^RHEL_VERSION=)
     OPENSHIFT_VERSION=${VERSION_ID:-4.9}
-    eval local $(cat /etc/os-release | grep ^VERSION_ID=)
-    RHEL_VERSION=${VERSION_ID:-8.4}
+
+    if [ "${ID}" = "rhcos" ]; then
+	:
+    elif [ "${ID}" = "rhel" ]; then
+	RHEL_VERSION=${VERSION_ID:-8.4}
+    else
+	eval local $(cat /etc/os-release | grep ^VERSION_ID=)
+	RHEL_VERSION=${VERSION_ID:-8.4}
+    fi
 
     dnf config-manager --set-enabled rhocp-${OPENSHIFT_VERSION}-for-rhel-8-x86_64-rpms || true
     if ! dnf makecache --releasever=${RHEL_VERSION}; then
