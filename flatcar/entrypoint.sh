@@ -45,7 +45,7 @@ handle_signal() {
 ofed_exist_for_kernel() {
     # check if mlx5_core exists in dkms under running kernel, this should be sufficient to hint us if
     # OFED drivers are installed for the running kernel
-    if [[ -e /usr/lib/modules/${KVER}/extra/mlnx-ofa_kernel/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.ko ]]; then
+    if [[ -e /usr/lib/modules/${KVER}/extra/mlnx-ofa_kernel/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.ko.xz ]]; then
         echo "OFED driver found for kernel"
         return 0
     fi
