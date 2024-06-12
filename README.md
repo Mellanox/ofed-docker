@@ -39,6 +39,10 @@ the container image on the host the container will:
 * Mount the container's root fs to `/run/mellanox/drivers/`. Should this directory be mapped to the host,
 the content of this container will be made available to be shared with host or other containers. A use-case for it
 would be compilation of Nvidia Peer Memory client modules.
+* Mount host's `/etc/network` to container's `/etc/network` to allow `ifupdown` scripts work. **NOTE:** We reccommend
+always mount this directory into the container until container will be able to if `netplan` is used on the host system.
+* Mount host's `/etc` to container's `/host/etc` and host's `/lib/udev` to container's `/host/lib/uddev` to have ability
+apply udev rule on host
 
 ### Containerized Mellanox OFED - Image build
 It is required to build the image on the same OS and kernel as it will be deployed.
